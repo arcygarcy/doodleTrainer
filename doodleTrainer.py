@@ -220,7 +220,7 @@ if __name__ == "__main__":
             start_time = time.time()
             hours, selected_tricks = takeUserInput()
             tricks_performed = 0
-            displayMessage('Starting training, hold esc for 1 cycle to stop')
+            displayMessage('Starting training, press esc to exit')
             while hours > (time.time() - start_time) / 3600 and not stop:
                 rand_variation = random.randint(0, 100)
                 if rand_variation > 88:
