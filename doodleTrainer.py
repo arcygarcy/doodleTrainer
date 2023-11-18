@@ -6,6 +6,44 @@ import pyautogui
 import time
 import random
 import keyboard
+import editdistance
+import easyocr
+
+stop = False
+
+def is_similar(test_word):
+    '''Compares OCR to known words that we are looking for'''
+    words = ['pets', 'tricks', 'backflip', 'beg', 'dance', 'jump', 'play', 'dead', 'rollover', 'speak']
+    threshold = 2
+
+    for word in words:
+        distance = editdistance.eval(test_word, word)
+        if distance <= threshold:
+            if word == 'play' or word == 'dead':
+                return 'play_dead'
+            return word
+    return -1
+
+
+def ocr(image):
+    '''Gets text from an image and compares to known words'''
+    coordinates = {}
+
+    reader = easyocr.Reader(['en'], gpu=False, verbose=False)
+
+    results = reader.readtext(image)
+
+    for i, result in enumerate(results):
+        text = result[1]
+        bbox = result[0]
+        top_left, top_right, bottom_right, bottom_left = bbox
+
+        word = is_similar(text.lower())
+        if not word == -1:
+            coordinates[word] = [(top_left[0] + bottom_right[0]) / 2 , (top_left[1] + bottom_right[1]) / 2]
+
+    return coordinates
+
 
 def getGameWindows():
     """Tries to get Rewritten and CC windows"""
@@ -62,45 +100,45 @@ def getCoordinates(screen, image):
 
 def calibrate():
     """Determines the coordinates of each of the tricks on the screen"""
-    displayMessage('Starting Calibration... Please Wait...')
+    print('Starting Calibration')
+    screen = np.array(ImageGrab.grab(bbox=(0, 0, 400, 400)))
     current_mouse_pos = pyautogui.position()
 
-    pictures = {}
+    coordinates = {}
     speedchat = cv2.imread('ImageData/speedchat.png')
-    pets = cv2.imread('ImageData/pets.png')
-    tricks = cv2.imread('ImageData/tricks.png')
-    pictures['backflip'] = cv2.imread('ImageData/backflip.png')
-    pictures['beg'] = cv2.imread('ImageData/beg.png')
-    pictures['dance'] = cv2.imread('ImageData/dance.png')
-    pictures['jump'] = cv2.imread('ImageData/jump.png')
-    pictures['play_dead'] = cv2.imread('ImageData/play_dead.png')
-    pictures['rollover'] = cv2.imread('ImageData/rollover.png')
-    pictures['speak'] = cv2.imread('ImageData/speak.png')
+    coordinates['speedchat'] = getCoordinates(screen, speedchat)
 
-    coordinates = {'speedchat': getCoordinates(screen=np.array(ImageGrab.grab(bbox=(0, 0, 400, 400))), image=speedchat)}
     pyautogui.click(coordinates['speedchat'])
+    pyautogui.click(current_mouse_pos)
+    pyautogui.moveTo(current_mouse_pos)
 
-    coordinates['pets'] = getCoordinates(screen=np.array(ImageGrab.grab(bbox=(0, 0, 400, 400))), image=pets)
+    screen = np.array(ImageGrab.grab(bbox=(coordinates['speedchat'][0] + 20, coordinates['speedchat'][1] - 8, coordinates['speedchat'][0] + 115, coordinates['speedchat'][1] + 135)))
+
+    relative_center = ocr(screen)['pets']
+
+    coordinates['pets'] = [coordinates['speedchat'][0] + relative_center[0]  + 20, coordinates['speedchat'][1] + relative_center[1] - 8]
     pyautogui.moveTo(coordinates['pets'])
 
-    coordinates['tricks'] = getCoordinates(screen=np.array(ImageGrab.grab(bbox=(0, 0, 400, 400))), image=tricks)
-    pyautogui.moveTo(coordinates['tricks'][0] - 15, coordinates['tricks'][1])
+    coordinates['tricks'] = [coordinates['pets'][0] + 120, coordinates['pets'][1]]
+    pyautogui.moveTo(coordinates['tricks'])
+
     coordinates['here_boy'] = [coordinates['tricks'][0], coordinates['tricks'][1] + 15]
 
-    screen = np.array(ImageGrab.grab(bbox=(0, 0, 400, 400)))
-    tricks = []
-    for key in pictures.keys():
-        coordinate = getCoordinates(screen=screen, image=pictures[key])
-        if coordinate[0] > coordinates['tricks'][0]:
-            coordinates[key] = coordinate
-            tricks.append(key)
+    pyautogui.moveTo(current_mouse_pos)
+    screen = np.array(ImageGrab.grab(bbox=(coordinates['tricks'][0] + 20, coordinates['tricks'][1] - 10, coordinates['tricks'][0] + 120, coordinates['tricks'][1] + 122)))
+
+    tricks = ocr(screen)
+    for key in tricks.keys():
+        coordinates[key] = [coordinates['tricks'][0] + tricks[key][0] + 20, coordinates['tricks'][1] + tricks[key][1] - 10]
 
     pyautogui.click(coordinates['speedchat'])
     pyautogui.click(current_mouse_pos)
 
-    if len(coordinates) > 5:
+    print(coordinates)
+
+    if len(coordinates) >= 5:
         displayMessage('Calibration Successful')
-        return coordinates, tricks
+        return coordinates, list(tricks.keys())
     else:
         displayMessage('Calibration Failed')
         return None, None
@@ -151,15 +189,25 @@ def takeUserInput():
 
     return hours, selected_tricks
 
+
 def printBreak():
     """Break Line for after inputs"""
     print('=========================================================================')
+
 
 def displayMessage(message):
     """Input a string and have it wrapped nicely"""
     print(message)
     printBreak()
 
+
+def on_escape():
+    global stop
+    if not stop:
+        displayMessage(f'Stopping Trainer...')
+        stop = True
+
+keyboard.add_hotkey('ESC', on_escape)
 
 if __name__ == "__main__":
     print('=========================================================================')
@@ -173,10 +221,7 @@ if __name__ == "__main__":
             hours, selected_tricks = takeUserInput()
             tricks_performed = 0
             displayMessage('Starting training, hold esc for 1 cycle to stop')
-            while hours > (time.time() - start_time) / 3600:
-                if keyboard.is_pressed("ESC"):
-                    break
-
+            while hours > (time.time() - start_time) / 3600 and not stop:
                 rand_variation = random.randint(0, 100)
                 if rand_variation > 88:
                     hereBoy(coordinates)
