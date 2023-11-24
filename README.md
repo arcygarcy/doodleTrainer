@@ -10,9 +10,13 @@ Must be on a Windows-based operating system. Python3 is necessary for this to wo
 
 ## Download Files via Releases Tab
 
-[Release v4.0](https://github.com/arcygarcy/doodleTrainer/releases/tag/v4.0)
+-[Latest Release](https://github.com/arcygarcy/doodleTrainer/releases/latest)
 
-Find the files in your downloads folder and extract the files. Open the new folder, [Shift + Right Click] on a blank space in the folder, and open with PowerShell. You should see something like ```C:\Users\user\Downloads\doodleTrainer``` and if so you are ready to move on.
+Find the files in your downloads folder and extract the files.
+
+Open the new folder, [Shift + Right Click] on a blank space in the folder, and open with PowerShell.
+
+You should see something like: ```C:\Users\user\Downloads\doodleTrainer``` and if so you are ready to move on.
 
 ## Virtual Environment(Optional)
 
