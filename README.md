@@ -4,9 +4,7 @@ This is a tool for using the speed chat UI in ToonTown to say tricks for your do
 
 ## Prerequisites
 
-Must be on a Windows-based operating system.
-
-To make your experience as seamless as possible I recommend that you have Python and Git installed on your machine.
+Must be on a Windows-based operating system. Python3 is necessary for this to work.
 
 - [Python](https://www.python.org/downloads/)
 
@@ -22,11 +20,13 @@ You should see something like: ```C:\Users\user\Downloads\doodleTrainer``` and i
 
 ## Virtual Environment(Optional)
 
-This is good practice, but optional.
+Install venv.
+
+```pip3 install virtualenv```
 
 Create a virtual Environment.
 
-```python -m venv venv```
+```python3 -m venv venv```
 
 Activate virtual Environment.
 
@@ -40,11 +40,11 @@ After you are done using the script you can leave the Virtual Environment with t
 
 The dependencies need to be downloaded for this to work properly.
 
-```pip install -r requirements.txt```
+```pip3 install -r requirements.txt```
 
 ## Start Script
 
-```python doodleTrainer.py```
+```python3 doodleTrainer.py```
 
 ## Best Practices
 
