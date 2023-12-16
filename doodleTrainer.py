@@ -107,6 +107,11 @@ def calibrate():
     coordinates = {}
     speedchat = cv2.imread('ImageData/speedchat.png')
     coordinates['speedchat'] = getCoordinates(screen, speedchat)
+    
+    '''If there are seasonal updates, add to this clause to match the buttons'''
+    if coordinates['speedchat'][0] < 60 and coordinates['speedchat'][1] < 50:
+        speedchat_winter = cv2.imread('ImageData/speedchat_winter.png')
+        coordinates['speedchat'] = getCoordinates(screen, speedchat_winter)
 
     pyautogui.click(coordinates['speedchat'])
     pyautogui.click(current_mouse_pos)
