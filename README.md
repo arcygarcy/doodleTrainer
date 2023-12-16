@@ -10,7 +10,7 @@ Must be on a Windows-based operating system. Python3 is necessary for this to wo
 
 ## Download Files via Releases Tab
 
--[Latest Release](https://github.com/arcygarcy/doodleTrainer/releases/latest)
+- [Latest Release](https://github.com/arcygarcy/doodleTrainer/releases/latest)
 
 Find the files in your downloads folder and extract the files.
 
